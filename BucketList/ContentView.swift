@@ -24,32 +24,43 @@ struct ContentView: View {
     
     var body: some View {
         if viewModel.isUnlocked{
-            MapReader{ proxy in
-                Map(initialPosition: startPosition){
-                    ForEach(viewModel.locations){ location in
-                        Annotation(location.name, coordinate: location.coordinate ){
-                            Image(systemName: "star.circle")
-                                .resizable()
-                                .foregroundStyle(.red)
-                                .frame(width: 44 , height: 44)
-                                .clipShape(.circle)
-                                .onLongPressGesture{
-                                    viewModel.selectedPlace = location
-                                }
+            NavigationStack{
+                MapReader{ proxy in
+                    Map(initialPosition: startPosition){
+                        ForEach(viewModel.locations){ location in
+                            Annotation(location.name, coordinate: location.coordinate ){
+                                Image(systemName: "star.circle")
+                                    .resizable()
+                                    .foregroundStyle(.red)
+                                    .frame(width: 44 , height: 44)
+                                    .clipShape(.circle)
+                                    .onLongPressGesture{
+                                        viewModel.selectedPlace = location
+                                    }
+                                
+                            }
                         }
                     }
-                }
-                .onTapGesture { position in
-                    if let coordinate = proxy.convert(position, from: .local){
-                        viewModel.addLocation(at: coordinate)
+                    .mapStyle(viewModel.isHybrid ? .hybrid() : .standard)
+                    .onTapGesture { position in
+                        if let coordinate = proxy.convert(position, from: .local){
+                            viewModel.addLocation(at: coordinate)
+                        }
+                        
+                    }
+                    .sheet(item: $viewModel.selectedPlace){ place in
+                        EditView(location: place){
+                            viewModel.update(location: $0)
+                        }
                     }
                     
                 }
-                .sheet(item: $viewModel.selectedPlace){ place in
-                    EditView(location: place){
-                        viewModel.update(location: $0)
+                .toolbar(){
+                    Toggle( isOn: $viewModel.isHybrid){
+                        Label("switch mode", systemImage: "repeat")
                     }
-                }
+            }
+            
             }
         }else{
             Button("Unlock places", action: viewModel.authenticate)
