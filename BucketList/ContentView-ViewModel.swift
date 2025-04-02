@@ -16,6 +16,8 @@ extension ContentView{
          var selectedPlace:Location?
          var isUnlocked = false
          var isHybrid = false
+         var isAuthenticated = false
+         var errorMassage = ""
         
         let savePath = URL.documentsDirectory.appending(path: "SavedPlaces")
         
@@ -64,10 +66,12 @@ extension ContentView{
                     if success {
                         self.isUnlocked = true
                     } else{
-                     //error
+                        self.isAuthenticated = true
+                       self.errorMassage = error?.localizedDescription ?? "failed to authenticate."
                     }
                 }
             }else{
+                self.errorMassage = error?.localizedDescription ?? "Biometric authentication is not available."
                 // no biometrics
             }
         }

@@ -20,7 +20,7 @@ struct ContentView: View {
     )
     
     @State private var viewModel = ViewModel()
-    
+    @Environment(\.dismiss) var dismiss
     
     var body: some View {
         if viewModel.isUnlocked{
@@ -63,11 +63,21 @@ struct ContentView: View {
             
             }
         }else{
-            Button("Unlock places", action: viewModel.authenticate)
-                .padding()
-                .background(.blue)
-                .foregroundColor(.white)
-                .clipShape(.capsule)
+            VStack{
+                Button("Unlock places", action: viewModel.authenticate)
+                    .padding()
+                    .background(.blue)
+                    .foregroundColor(.white)
+                    .clipShape(.capsule)
+            }
+            .alert("authentication error" , isPresented: $viewModel.isAuthenticated){
+                Button("ok"){
+                    dismiss()
+                }
+                
+            }message: {
+                Text(viewModel.errorMassage)
+            }
         }
     }
 }
